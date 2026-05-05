@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Volume2, VolumeX, Calendar, ArrowRight } from 'lucide-react';
 
-// Replace this with your actual music file path, for example "/audio/background.mp3"
 const BACKGROUND_MUSIC_PATH = "/backgroundmusic/love_nwatitti.mp3";
 
 const BottomBar: React.FC = () => {
@@ -10,31 +9,46 @@ const BottomBar: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    // Initialize audio
-    audioRef.current = new Audio(BACKGROUND_MUSIC_PATH);
-    audioRef.current.loop = true;
-    audioRef.current.volume = 0.5; // Set a reasonable default volume
+    const audio = new Audio(BACKGROUND_MUSIC_PATH);
+
+    audio.loop = true;
+    audio.volume = 0.5;
+    audio.preload = "auto";
+    audio.muted = false;
+
+    audioRef.current = audio;
+
+    const handleAudioError = () => {
+      console.error("Background music failed to load. Check file path:", BACKGROUND_MUSIC_PATH);
+      setSoundEnabled(false);
+    };
+
+    audio.addEventListener("error", handleAudioError);
 
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      audio.pause();
+      audio.removeEventListener("error", handleAudioError);
+      audioRef.current = null;
     };
   }, []);
 
   const toggleSound = async () => {
-    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    if (!audio) return;
 
-    if (!soundEnabled) {
-      try {
-        await audioRef.current.play();
+    try {
+      if (!soundEnabled) {
+        audio.muted = false;
+        audio.volume = 0.5;
+
+        await audio.play();
         setSoundEnabled(true);
-      } catch (error) {
-        console.error("Autoplay blocked or audio error:", error);
+      } else {
+        audio.pause();
+        setSoundEnabled(false);
       }
-    } else {
-      audioRef.current.pause();
+    } catch (error) {
+      console.error("Audio play failed:", error);
       setSoundEnabled(false);
     }
   };
@@ -49,10 +63,11 @@ const BottomBar: React.FC = () => {
       {/* Left: Sound */}
       <div className="pointer-events-auto">
         <button 
+          type="button"
           onClick={toggleSound}
           aria-pressed={soundEnabled}
           aria-label={soundEnabled ? "Turn background music off" : "Turn background music on"}
-          className={`flex items-center gap-3 glass rounded-full px-5 py-2.5 group transition-all duration-300 ${
+          className={`flex items-center gap-3 glass rounded-full px-5 py-2.5 group transition-all duration-300 cursor-pointer ${
             soundEnabled ? 'border-accentRed/40 bg-accentRed/5' : 'hover:border-white/20'
           }`}
         >
@@ -103,7 +118,10 @@ const BottomBar: React.FC = () => {
 
       {/* Right: Book */}
       <div className="pointer-events-auto">
-        <button className="flex items-center gap-4 glass rounded-full px-6 py-3 group hover:border-accentRed/40 transition-all duration-300 shadow-glow-red/20 hover:shadow-glow-red/40">
+        <button 
+          type="button"
+          className="flex items-center gap-4 glass rounded-full px-6 py-3 group hover:border-accentRed/40 transition-all duration-300 shadow-glow-red/20 hover:shadow-glow-red/40"
+        >
           <Calendar className="w-4 h-4 text-accentRed" />
           <span className="text-[11px] font-bold tracking-[0.2em] text-white uppercase">Book a Private Experience</span>
           <ArrowRight className="w-4 h-4 text-white/40 group-hover:text-white transition-all group-hover:translate-x-1" />

@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body, #root {
+  min-height: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #030406;
+  color: #f8fafc;
+  overflow-x: hidden;
+}
+
+@layer base {
+  * {
+    @apply border-white/10;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/[0.04] backdrop-blur-xl border border-white/10;
+  }
+  
+  .text-glow-red {
+    text-shadow: 0 0 15px rgba(255, 18, 56, 0.4);
+  }
+  
+  .text-glow-blue {
+    text-shadow: 0 0 15px rgba(36, 183, 255, 0.4);
+  }
+
+  .shadow-glow-red {
+    box-shadow: 0 0 30px rgba(255, 18, 56, 0.2);
+  }
+
+  .shadow-glow-blue {
+    box-shadow: 0 0 30px rgba(36, 183, 255, 0.2);
+  }
+}

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX, Calendar, ArrowRight } from 'lucide-react';
 
 // Replace this with your actual music file path, for example "/audio/background.mp3"
-const BACKGROUND_MUSIC_PATH = "/dist/backgroundmusic/love_nwatitti.mp3";
+const BACKGROUND_MUSIC_PATH = "/backgroundmusic/love_nwatitti.mp3";
 
 const BottomBar: React.FC = () => {
   const [soundEnabled, setSoundEnabled] = useState(false);

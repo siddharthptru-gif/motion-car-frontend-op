@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Volume2, VolumeX, Calendar, ArrowRight } from 'lucide-react';
 
@@ -8,7 +8,13 @@ const BottomBar: React.FC = () => {
   const [soundEnabled, setSoundEnabled] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  useEffect(() => {
+    // Confirm the component is mounted and the audio path
+    console.log("BottomBar mounted, music path:", BACKGROUND_MUSIC_PATH);
+  }, []);
+
   const toggleSound = async () => {
+    console.log("Sound button clicked");
     const audio = audioRef.current;
     if (!audio) {
       console.error("Audio element not found");
@@ -18,20 +24,35 @@ const BottomBar: React.FC = () => {
     try {
       if (!soundEnabled) {
         audio.muted = false;
-        audio.volume = 0.6;
+        audio.volume = 0.5;
         audio.loop = true;
 
-        await audio.play();
-        setSoundEnabled(true);
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          await playPromise;
+          console.log("Audio play started");
+          setSoundEnabled(true);
+        }
       } else {
         audio.pause();
+        console.log("Audio paused");
         setSoundEnabled(false);
       }
     } catch (error) {
-      console.error("Audio play failed:", error);
-      alert("Sound play nahi ho pa raha. F12 Console me exact error check karo.");
+      console.error("Audio failed:", error);
       setSoundEnabled(false);
     }
+  };
+
+  const handleAudioError = (e: React.SyntheticEvent<HTMLAudioElement, Event>) => {
+    const target = e.target as HTMLAudioElement;
+    console.error("Audio failed to load at path:", BACKGROUND_MUSIC_PATH);
+    console.error("Exact error:", target.error);
+    console.log("Audio failed");
+  };
+
+  const handleAudioLoaded = () => {
+    console.log("Audio loaded");
   };
 
   return (
@@ -41,9 +62,8 @@ const BottomBar: React.FC = () => {
         src={BACKGROUND_MUSIC_PATH}
         preload="auto"
         loop
-        onError={() => {
-          console.error("Music file load nahi ho rahi:", BACKGROUND_MUSIC_PATH);
-        }}
+        onCanPlayThrough={handleAudioLoaded}
+        onError={handleAudioError}
       />
 
       <motion.div 
